@@ -55,6 +55,7 @@ class Config(dict):
         self['LOCAL_CSS_FILE']='basic.css'
         self['DISPLAY_INTERVAL']=True
         self['DISPLAY_DIVIDER']=True
+        self['RENDER_LATEX']=False
 
     def loadConfig(self):
         try:
@@ -829,6 +830,8 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                                    deck.deckFinishedMsg() +
                                    self._bottom)
                     else:
+                        deck.updateCardQACacheFromIds([currentCard.id],  build=config["RENDER_LATEX"])
+                        currentCard = deck.getCard(orm=False)
                         buffer += (self._top() + ("""
 <br>
 <div class="qa-area">
