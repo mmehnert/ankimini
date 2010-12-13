@@ -849,6 +849,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         }))
                         buffer += (self._bottom)
                 except Exception, e:
+                    traceback.print_exc()
                     self.errorMsg = "An Exception was thrown processing the card."
                     buffer += (self._top() + ("""
 <br/> <br/>
