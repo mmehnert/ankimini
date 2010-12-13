@@ -27,7 +27,7 @@ VERSION_ANKIMINI="2.0"
 
 ##########################
 
-ANKIMINI_PATH=os.path.join(os.path.expanduser("~/"),".anki")
+ANKIMINI_PATH=os.getcwd()
 
 class Config(dict):
     configFile = os.path.join(ANKIMINI_PATH,"ankimini-config.py")
@@ -86,7 +86,7 @@ def human_readable_size( num ):
             return "%3.1f%s" % (num, x)
         num /= 1024.0
 
-def expandName( raw, ext, base_dir=ANKIMINI_PATH ):
+def expandName( raw, ext, base_dir=ANKIMINI_PATH+os.sep+"decks" ):
     if raw is None: return None
     if ext is None: ext=''
     if raw[0] == '/':
@@ -446,7 +446,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 		<div style="margin-left: 15; margin-right: 15; margin-top: 15">
 		"""
         try:
-            deckList = glob.glob(os.path.join(ANKIMINI_PATH,"*.anki"))
+            deckList = glob.glob(os.path.join(ANKIMINI_PATH+os.sep+"decks","*.anki"))
             if deckList is None or len(deckList)==0:
                 buffer += "<em>You have no local decks!<br />Download one from Anki online, or copy deck files from your PC to %s on this device." % ANKIMINI_PATH
             else:
