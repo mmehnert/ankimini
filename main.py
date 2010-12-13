@@ -8,6 +8,10 @@ A mini anki webserver
 ======================
 """
 __docformat__ = 'restructuredtext'
+import sys,os
+sys.path.insert(0,os.getcwd()+os.sep+"libanki")
+sys.path.append(os.getcwd()+os.sep+"simplejson")
+sys.path.append(os.getcwd()+os.sep+"sqlalchemy")
 
 import urllib
 import time, cgi, sys, os, re, threading, traceback
