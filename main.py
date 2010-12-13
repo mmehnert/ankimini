@@ -14,7 +14,7 @@ from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from anki import DeckStorage as ds
 from anki.sync import SyncClient, HttpSyncServerProxy
-from anki.media import mediaRefs
+from anki.media import mediaFiles
 from anki.utils import parseTags, joinTags
 from anki.facts import Fact
 from anki.hooks import addHook
@@ -395,7 +395,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 if deck:
                     config['DECK_PATH']=deck.path
                     config.saveConfig()
-                    deck.rebuildQueue()
+                    deck.reset()
                 else:
                     errorMsg += "<br /><br /><b>Deck didn't change</b>: " 
                     if os.path.exists(deckpath):
@@ -750,7 +750,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 deck = switchDeck(deck, new)
                 config['DECK_PATH']=deck.path
                 config.saveConfig()
-                deck.rebuildQueue()
+                deck.reset()
             except Exception, e:
                 self.errorMsg = str(e)
             if query.get("i"):
@@ -761,7 +761,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         if self.path == "/":
             # refresh
             if deck:
-                deck.rebuildQueue()
+                deck.reset()
             self.flushWrite(self._outer())
         elif deck and self.path.startswith("/save"):
             deck.save()
@@ -992,7 +992,7 @@ the problem magically goes away.
             client.applyPayloadReply(res)
         # finished. save deck, preserving mod time
         self.lineWrite("Sync complete.")
-        deck.rebuildQueue()
+        deck.reset()
         deck.lastLoaded = deck.modified
         deck.s.flush()
         deck.s.commit()
@@ -1027,6 +1027,7 @@ the problem magically goes away.
         self._disableMedia = True
 
     def prepareMedia(self, string, auto=True):
+        return string
         class AudioThread(threading.Thread):
             def __init__(self, *args, **kwargs):
                 self.toPlay = kwargs['toPlay']
