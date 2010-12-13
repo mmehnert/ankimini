@@ -9,8 +9,8 @@ A mini anki webserver
 """
 __docformat__ = 'restructuredtext'
 
-import time, cgi, sys, os, re, subprocess, threading, traceback
 import urllib
+import time, cgi, sys, os, re, threading, traceback
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from anki import DeckStorage as ds
@@ -1038,7 +1038,7 @@ the problem magically goes away.
                 threading.Thread.__init__(self, *args, **kwargs)
             def run(self):
                 for f in self.toPlay:
-                    subprocess.Popen([config.get('PLAY_COMMAND'), f]).wait()
+                    os.system([config.get('PLAY_COMMAND')+" "+ f])
         toPlay = []
         for filename in mediaFiles(string):
             if auto and (filename.lower().endswith(".mp3") or
