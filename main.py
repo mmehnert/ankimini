@@ -715,8 +715,13 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         def writeImage():
             img = urllib.unquote(lp[1:])
             try:
-                self.wfile.write(open(os.path.join(deck.mediaDir(), img)).read())
-            except:
+                fimage = open(os.path.join(deck.mediaDir(), img), 'rb')
+                image=fimage.read()
+                while len(image) != 0:
+                    self.wfile.write(image)
+                    image=fimage.read()
+            except Exception,  e:
+                traceback.print_exc()
                 pass
         for (ext, type) in ((".jpg", "image/jpeg"),
                             (".jpeg", "image/jpeg"),
