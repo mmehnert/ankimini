@@ -829,7 +829,13 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                                    deck.deckFinishedMsg() +
                                    self._bottom)
                     else:
+                        curdir=os.getcwd() 
+                        try:
+                            os.chdir(deck.mediaDir()) 
+                        except BaseException,  e:
+                            pass
                         deck.updateCardQACacheFromIds([currentCard.id],  build=config["RENDER_LATEX"])
+                        os.chdir(curdir)
                         currentCard = deck.getCard(orm=False)
                         buffer += (self._top() + ("""
 <br>
