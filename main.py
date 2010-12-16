@@ -450,6 +450,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 		<div style="margin-left: 15; margin-right: 15; margin-top: 15">
 		"""
         try:
+            global deck
             deckList = glob.glob(os.path.join(ANKIMINI_PATH+os.sep+"decks","*.anki"))
             if deckList is None or len(deckList)==0:
                 buffer += "<em>You have no local decks!<br />Download one from Anki online, or copy deck files from your PC to %s on this device." % ANKIMINI_PATH
@@ -459,9 +460,16 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     import stat
                     bytes=os.stat(p)[stat.ST_SIZE]
                     name=os.path.basename(p)[:-5]
-                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td></tr>' % ( name, name, human_readable_size(bytes) )
+                    if deck.name() == name:
+                        tmpdeck=deck
+                    else:
+                        tmpdeck=openDeck(name)
+                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%s due, %s new</td></tr>' % ( name, name, human_readable_size(bytes),  tmpdeck.failedSoonCount + tmpdeck.revCount, tmpdeck.newCountToday )
+                    if deck.name() != name:
+                        tmpdeck.close()
                 buffer += "</table>"
         except Exception, e:
+            traceback.format_exc()
             buffer += "<em>Error listing files!</em><br />" + str(e)
 
         buffer += """
