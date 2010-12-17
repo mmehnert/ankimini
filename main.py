@@ -113,7 +113,7 @@ def openDeck(deckPath=None):
         print "open deck.. " + deckPath
         if not os.path.exists(deckPath):
             raise ValueError("Couldn't find deck %s" % (deckPath,) )
-        deck = ds.Deck(deckPath, backup=False)
+        deck = ds.Deck(deckPath, backup=False,  build=False)
         deck.s.execute("pragma cache_size = 1000")
     except Exception, e:
         print "Error loading deck"
@@ -460,16 +460,16 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     import stat
                     bytes=os.stat(p)[stat.ST_SIZE]
                     name=os.path.basename(p)[:-5]
-                    if deck.name() == name:
+                    if deck is not None and deck.name() == name:
                         tmpdeck=deck
                     else:
                         tmpdeck=openDeck(name)
-                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%s due, %s new</td></tr>' % ( name, name, human_readable_size(bytes),  tmpdeck.failedSoonCount + tmpdeck.revCount, tmpdeck.newCountToday )
-                    if deck.name() != name:
+                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%sdue, %snew</td></tr>' % ( name, name, human_readable_size(bytes),  tmpdeck.failedSoonCount + tmpdeck.revCount, tmpdeck.newCountToday )
+                    if deck is not None and deck.name() != name:
                         tmpdeck.close()
                 buffer += "</table>"
         except Exception, e:
-            traceback.format_exc()
+            traceback.print_exc()
             buffer += "<em>Error listing files!</em><br />" + str(e)
 
         buffer += """
