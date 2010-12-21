@@ -242,9 +242,9 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 .medButtonRed
 { font-size: 18px; width: 100px; height: 40px; padding: 5px; color: #FF0000; }
 .q
-{ font-size: 30px; }
+{ font-size: 18px; }
 .a
-{ font-size: 30px; }
+{ font-size: 18px; }
 .qa-area
 { min-height: 240px; }
 	body { margin-top: 0px; margin-left: 15px; padding: 0px; font-family: arial, helvetica; }
