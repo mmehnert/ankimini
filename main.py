@@ -893,8 +893,9 @@ the problem magically goes away.
 <div class="q" %(divider)s>%(question)s<br /></div>
 <div class="a">%(divider_two)s%(answer)s</div>
 </div>
-<br></div><br><form action="/question" method="get" style="margin: 0px; padding: 0px;">
+<br></div><br><form name="gradeform" action="/question" method="get" style="margin: 0px; padding: 0px;">
 <input type="hidden" name="mod" value="%(mod)d">
+<input type="hidden" name="q" value="">
 <table width="100%%">
 <tr>
 """ % {
@@ -910,25 +911,25 @@ the problem magically goes away.
                 for i in range(1, 5):
                     ints[str(i)] = deck.nextIntervalStr(c, i, True)
                 buffer += ("""
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="1">Soon</button></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="2">%(2)s</button><br></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="3">%(3)s</button></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="4">%(4)s</button></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=1; document.gradeform.submit();">Soon</button></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=2; document.gradeform.submit();">%(2)s</button><br></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=3; document.gradeform.submit();">%(3)s</button></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=4; document.gradeform.submit();">%(4)s</button></td>
     """ % ints)
             else:
                 buffer += ("""
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="1">Again</button></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="2">Hard</button><br></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="3">Good</button></td>
-    <td align=center><button class="easeButton" type="submit" class="button" name="q"
-    value="4">Easy</button></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=1; document.gradeform.submit();">Again</button></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=2; document.gradeform.submit();">Hard</button><br></td>
+    <td align=center><button class="easeButton" type="button" class="button" 
+    onclick="document.gradeform.q.value=3; document.gradeform.submit();">Good</button></td>
+    <td align=center><button class="easeButton" type="button" class="button"
+    onclick="document.gradeform.q.value=4; document.gradeform.submit();">Easy</button></td>
     """)
             buffer += ("</tr></table></form>")
             buffer += (self._bottom)
