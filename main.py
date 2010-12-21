@@ -465,7 +465,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     else:
                         tmpdeck=openDeck(name)
                     buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%sdue, %snew</td></tr>' % ( name, name, human_readable_size(bytes),  tmpdeck.failedSoonCount + tmpdeck.revCount, tmpdeck.newCountToday )
-                    if deck is not None and deck.name() != name:
+                    if deck != tmpdeck:
                         tmpdeck.close()
                 buffer += "</table>"
         except Exception, e:
@@ -892,7 +892,7 @@ the problem magically goes away.
 <div class="q" %(divider)s>%(question)s<br /></div>
 <div class="a">%(divider_two)s%(answer)s</div>
 </div>
-<br></div><br><form action="/question#inner_top" method="get" style="margin: 0px; padding: 0px;">
+<br></div><br><form action="/question" method="get" style="margin: 0px; padding: 0px;">
 <input type="hidden" name="mod" value="%(mod)d">
 <table width="100%%">
 <tr>
