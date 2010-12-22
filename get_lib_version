@@ -1,0 +1,2 @@
+#!/bin/sh
+perl -n -e 'if (/version = "([^"]+)"/){print "$1\n";}' ankimini/libanki/anki/__init__.py
