@@ -1,5 +1,3 @@
-VERSION=$(shell ./get_lib_version)
-
 all:
 	rm -rf ankimini
 	git clone /usr/src/my-stuff/anki/ankimini
@@ -11,4 +9,4 @@ all:
 	mkdir ankimini/decks
 	cp README.windows-mobile.txt ankimini
 	-find ankimini -iname "*.pyc"|xargs rm -v
-	zip -9 -r `date "+%F"`-ankimini-windows-mobile-libanki-$(VERSION).zip ankimini	
+	zip -9 -r `date "+%F"`-ankimini-windows-mobile-libanki-`./get_lib_version`.zip ankimini	
