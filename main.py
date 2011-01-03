@@ -61,7 +61,7 @@ class Config(dict):
         try:
             import re
             for line in open(self.configFile,"r").readlines():
-                line = self.re_matchComments.sub("", line)		# remove comments
+                line = self.re_matchComments.sub("", line)        # remove comments
                 match = self.re_matchConfig.match(line)
                 if match:
                     k = match.group(1)
@@ -246,7 +246,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 { font-size: 18px; }
 .qa-area
 { min-height: 240px; }
-	body { margin-top: 0px; margin-left: 15px; padding: 0px; font-family: arial, helvetica; }
+    body { margin-top: 0px; margin-left: 15px; padding: 0px; font-family: arial, helvetica; }
 %s
 </style>
 </head>
@@ -312,53 +312,53 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
     def render_get_config(self):
         global config
         buffer = """
-		<html>
-		<head><title>Config</title></head>
-		<script type="text/javascript" language="javascript">
-		<!--
-		function setCssToggle() {
+        <html>
+        <head><title>Config</title></head>
+        <script type="text/javascript" language="javascript">
+        <!--
+        function setCssToggle() {
                         c = document.getElementById('localcss');
                         var fileInput = document.getElementById('cssfile');
-			fileInput.disabled = !c.checked
-		}
+            fileInput.disabled = !c.checked
+        }
                 window.onload=setCssToggle;
-		//-->
-		</script>
-		<style>
-		.page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
-			font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
-		</style>
-		<body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
-		<div class="page-header">Config</div>
-		<div style="margin-left: 15; margin-right: 15; margin-top: 15">
-		 <form action="/config" method="POST">
-		  <fieldset><legend>Sync details</legend>
-		   <label for="username">User name</label> <input id="username" type="text" name="username" value="%s" autocorrect="off" autocapitalize="off" /> <br />
-		   <label for="password">Password</label>  <input id="password" type="password" name="password" value="%s" autocorrect="off" autocapitalize="off" />
-		  </fieldset>
-		  <fieldset><legend>Deck</legend>
-		   <label for="deckpath">Deck</label>  <input id="deckpath" type="text" name="deckpath" value="%s" autocorrect="off" autocapitalize="off" />
+        //-->
+        </script>
+        <style>
+        .page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
+            font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
+        </style>
+        <body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
+        <div class="page-header">Config</div>
+        <div style="margin-left: 15; margin-right: 15; margin-top: 15">
+         <form action="/config" method="POST">
+          <fieldset><legend>Sync details</legend>
+           <label for="username">User name</label> <input id="username" type="text" name="username" value="%s" autocorrect="off" autocapitalize="off" /> <br />
+           <label for="password">Password</label>  <input id="password" type="password" name="password" value="%s" autocorrect="off" autocapitalize="off" />
+          </fieldset>
+          <fieldset><legend>Deck</legend>
+           <label for="deckpath">Deck</label>  <input id="deckpath" type="text" name="deckpath" value="%s" autocorrect="off" autocapitalize="off" />
                    <em>(change doesn't take effect until a server restart)</em>
-		  </fieldset>
-		  <fieldset><legend>Display</legend>
-		   <label for="localcss">Override deck CSS?</label>  <input id="localcss" type="checkbox" name="localcss" value="localcss" %s onclick="setCssToggle()" /><br />
-		   <label for="cssfile">CSS Filename</label>  <input id="cssfile" type="text" name="cssfile" value="%s" /><br />
-		   <label for="dispint">Display Interval</label>  <input id="dispint" type="checkbox" name="dispint" value="dispint" %s /><br />
-		   <label for="dispdiv">Display Divider</label>  <input id="dispdiv" type="checkbox" name="dispdiv" value="dispdiv" %s />
-		  </fieldset>
-		  <fieldset><legend>Misc details</legend>
-		   <label for="play">Play command</label>  <input id="play" type="text" name="play" value="%s" autocorrect="off" autocapitalize="off" /> <br />
-		   <label for="port">Server port</label>  <input id="port" type="text" name="port" value="%s" autocorrect="off" autocapitalize="off" />
+          </fieldset>
+          <fieldset><legend>Display</legend>
+           <label for="localcss">Override deck CSS?</label>  <input id="localcss" type="checkbox" name="localcss" value="localcss" %s onclick="setCssToggle()" /><br />
+           <label for="cssfile">CSS Filename</label>  <input id="cssfile" type="text" name="cssfile" value="%s" /><br />
+           <label for="dispint">Display Interval</label>  <input id="dispint" type="checkbox" name="dispint" value="dispint" %s /><br />
+           <label for="dispdiv">Display Divider</label>  <input id="dispdiv" type="checkbox" name="dispdiv" value="dispdiv" %s />
+          </fieldset>
+          <fieldset><legend>Misc details</legend>
+           <label for="play">Play command</label>  <input id="play" type="text" name="play" value="%s" autocorrect="off" autocapitalize="off" /> <br />
+           <label for="port">Server port</label>  <input id="port" type="text" name="port" value="%s" autocorrect="off" autocapitalize="off" />
                    <em>(port change doesn't take effect until a server restart)</em><br />
-		  </fieldset>
-		  <fieldset class="submit">
-		   <input type="submit" class="button" value="Save Config">
-		  </fieldset>
-		 </form>
-		 <br /><a href="/question#inner_top">return</a>
-		</div>
-		</body>
-		</html>
+          </fieldset>
+          <fieldset class="submit">
+           <input type="submit" class="button" value="Save Config">
+          </fieldset>
+         </form>
+         <br /><a href="/question#inner_top">return</a>
+        </div>
+        </body>
+        </html>
         """ % ( config.get('SYNC_USERNAME',''), config.get('SYNC_PASSWORD',''), config.get('DECK_PATH',''),
                  'checked="checked"' if config.get('USE_LOCAL_CSS') else '', config.get('LOCAL_CSS_FILE',''),
                  'checked="checked"' if config.get('DISPLAY_INTERVAL') else '',
@@ -412,9 +412,9 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 
             obscured = '*' * len(password)
             buffer += """
-		<em>Config saved</em> <br />
-		Username = %s <br />
-		Password = %s <br />
+        <em>Config saved</em> <br />
+        Username = %s <br />
+        Password = %s <br />
                 Override deck CSS = %s <br />
                 Local CSS file = %s <br />
                 Display interval = %s <br />
@@ -422,15 +422,15 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 Port = %d <br />
                 Play = %s <br />
                 %s
-		""" % ( username, obscured, localcss, cssfile, dispint, dispdiv, port, play, errorMsg )
+        """ % ( username, obscured, localcss, cssfile, dispint, dispdiv, port, play, errorMsg )
         except Exception, e:
             buffer += "<em>Config save may have failed!  Please check the values and try again</em><br />"
             buffer += str(e)
 
         buffer += """
-		<br /><a href="/question#inner_top">return</a>
-		</body></html>
-		"""
+        <br /><a href="/question#inner_top">return</a>
+        </body></html>
+        """
 
         return buffer
 ####################### end render_post_config
@@ -438,17 +438,17 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
     def render_get_local(self):
         import glob
         buffer = """
-		<html>
-		<head><title>List local decks</title>
-		<style>
-		.page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
-			font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
-		</style>
-		</head>
-		<body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
-		<div class="page-header">Local Decks</div>
-		<div style="margin-left: 15; margin-right: 15; margin-top: 15">
-		"""
+        <html>
+        <head><title>List local decks</title>
+        <style>
+        .page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
+            font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
+        </style>
+        </head>
+        <body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
+        <div class="page-header">Local Decks</div>
+        <div style="margin-left: 15; margin-right: 15; margin-top: 15">
+        """
         try:
             global deck
             deckList = glob.glob(os.path.join(ANKIMINI_PATH+os.sep+"decks","*.anki"))
@@ -473,11 +473,11 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             buffer += "<em>Error listing files!</em><br />" + str(e)
 
         buffer += """
-		<br /><a href="/question#inner_top">return</a>
-		</div>
-		</body>
-		</html>
-	        """
+        <br /><a href="/question#inner_top">return</a>
+        </div>
+        </body>
+        </html>
+            """
 
         return buffer
 ####################### end render_get_local
@@ -485,18 +485,18 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
     def render_get_personal(self):
         global config
         buffer = """
-		<html>
-		<head><title>List personal decks</title>
-		<style>
-		.page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
-			font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
-		</style>
-		</head>
-		<body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
-		<div class="page-header">Online Personal Decks</div>
-		<div style="margin-left: 15; margin-right: 15; margin-top: 15">
-		Please select one to download it...
-		"""
+        <html>
+        <head><title>List personal decks</title>
+        <style>
+        .page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
+            font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
+        </style>
+        </head>
+        <body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
+        <div class="page-header">Online Personal Decks</div>
+        <div style="margin-left: 15; margin-right: 15; margin-top: 15">
+        Please select one to download it...
+        """
         try:
             proxy = HttpSyncServerProxy(config.get('SYNC_USERNAME'), config.get('SYNC_PASSWORD'))
             deckList = proxy.availableDecks()
@@ -505,17 +505,17 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             else:
                 buffer += '<table width="100%%" cellspacing="10">'
                 for d in deckList:
-                   	buffer += '<tr height><td><a href="/download?deck=%s">%s</a></td></tr>' % ( d, d )
+                       buffer += '<tr height><td><a href="/download?deck=%s">%s</a></td></tr>' % ( d, d )
                 buffer += "</table>"
         except:
             buffer += "<br /><em>Can't connect - check username/password</em>"
 
         buffer += """
-		<br /><a href="/question#inner_top">return</a>
-		</div>
-		</body>
-		</html>
-	        """
+        <br /><a href="/question#inner_top">return</a>
+        </div>
+        </body>
+        </html>
+            """
 
         return buffer
 ####################### end render_get_personal
@@ -529,10 +529,10 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 
         name = params["deck"]
         self.wfile.write( """
-		<html>
-		<head><title>Downloading %s ...</title></head>
-		<body style="font-family: arial, helvetica;">
-		""" % ( name ) )
+        <html>
+        <head><title>Downloading %s ...</title></head>
+        <body style="font-family: arial, helvetica;">
+        """ % ( name ) )
         buffer=""
 
         tmp_dir=None
@@ -552,7 +552,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             newdeck.s.commit()
             newdeck.lastLoaded = newdeck.modified
 
-	    newdeck = self.syncDeck( newdeck )
+            newdeck = self.syncDeck( newdeck )
             newdeck.save()
 
             if deck:
@@ -583,10 +583,10 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     pass
 
         buffer += """
-		<br />
-		<a href="/question#inner_top">return</a>
-		</body></html>
-		"""
+        <br />
+        <a href="/question#inner_top">return</a>
+        </body></html>
+        """
 
         return buffer
 ####################### end render_get_download
@@ -599,11 +599,11 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         buffer = """
             <html>
             <head><title>About</title>
-			<style>
-			.page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
-				font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
-			</style>
-			</head>
+            <style>
+            .page-header { background-color: #8FA1B9; border-bottom-style: solid; border-bottom-width: 1.5px; border-bottom-color: #2D3642; border-top-style: solid; border-top-width: 1.5px; border-top-color: #CDD5DF; color: #FFFFFF;
+                font-family: Arial, Helvetica, sans-serif; height: 51px; font-size: 30px; font-weight: bold; text-align: center; padding-top: 15px; text-shadow: 0 -1.5px 1.2px #5D6773, 0 1.5px 1.2px #A4B2C4; background: -webkit-gradient(linear, left top, left bottom, from(#B0BCCD), to(#6D84A2), color-stop(0.5, #889BB3), color-stop(0.5, #8195AF)); }
+            </style>
+            </head>
             <body style="font-family: arial, helvetica; margin-left: 0px; margin-right: -10px; margin-top: 0px">
             <div class="page-header">About</div>
             <div style="margin-left: 15; margin-right: 15; margin-top: 15">
@@ -612,7 +612,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             %s
             <h2>Versions</h2>
             <table width="100%%">
-		<tr><th align="left">Component</th><th align="left">Version</th></tr>
+        <tr><th align="left">Component</th><th align="left">Version</th></tr>
                 <tr><td>Ankimini</td><td>%s</td></tr>
                 <tr><td>libanki</td><td>%s</td></tr>
             </table>
@@ -630,16 +630,16 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 <tr><td>Play command</td><td>%s</td></tr>
             </table>
             <p>For more info on Anki, visit the <a href="http://ichi2.net/anki">home page</a></p>
-	    <br /><a href="/question#inner_top">return</a>
+        <br /><a href="/question#inner_top">return</a>
             </div>
             </body>
             </html>
         """ % ( VERSION_ANKIMINI,
-		deck.path if deck is not None else 'None',
-		VERSION_ANKIMINI, VERSION_LIBANKI,
-		config.configFile, config.get('DECK_PATH'), config.get('SYNC_USERNAME'), obscured,
-		config.get('USE_LOCAL_CSS'), config.get('LOCAL_CSS_FILE'),
-		config.get('DISPLAY_INTERVAL'), config.get('DISPLAY_DIVIDER'), config.get('SERVER_PORT'), config.get('PLAY_COMMAND'),
+        deck.path if deck is not None else 'None',
+        VERSION_ANKIMINI, VERSION_LIBANKI,
+        config.configFile, config.get('DECK_PATH'), config.get('SYNC_USERNAME'), obscured,
+        config.get('USE_LOCAL_CSS'), config.get('LOCAL_CSS_FILE'),
+        config.get('DISPLAY_INTERVAL'), config.get('DISPLAY_DIVIDER'), config.get('SERVER_PORT'), config.get('PLAY_COMMAND'),
               )
 
         return buffer
@@ -649,7 +649,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         global deck
         global config
 
-	quick = self.path.startswith("/check_quick")
+        quick = self.path.startswith("/check_quick")
         self.wfile.write("""
         <html><head><title>Checking deck</title></head> 
         Performing a deck database check...
@@ -661,9 +661,9 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         # hack to get safari to render immediately!
         self.flushWrite("<!--" + " "*1024 + "-->")
 
-	# this can take a long time ... ensure the client doesn't timeout before we finish
-	from threading import Event, Thread
-	ping_event = Event()
+        # this can take a long time ... ensure the client doesn't timeout before we finish
+        from threading import Event, Thread
+        ping_event = Event()
         def ping_client( s = self.wfile, ev=ping_event ):
             while 1:
                 ev.wait(3)
@@ -671,8 +671,8 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     return
                 s.write(".<!--\n-->")
                 s.flush()
-	ping_thread = Thread(target=ping_client)
-	ping_thread.start()
+        ping_thread = Thread(target=ping_client)
+        ping_thread.start()
 
         if quick:
             self.flushWrite("<br/>Doing quick check ...")
@@ -709,7 +709,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         params = cgi.parse_qs(qs, keep_blank_values=1)
 
         if self.path.startswith("/config"):
-	    buffer = self.render_post_config(params)
+            buffer = self.render_post_config(params)
 
         self.wfile.write(buffer.encode("utf-8") + "\n")
         print "service time", time.time() - serviceStart
@@ -814,9 +814,9 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             # syncing
             try:
                 self.flushWrite("""
-			<html><head>
-			<meta name="viewport" content="user-scalable=yes, width=device-width, maximum-scale=0.6667" />
-			</head><body style="font-family: arial, helvetica;">""")
+            <html><head>
+            <meta name="viewport" content="user-scalable=yes, width=device-width, maximum-scale=0.6667" />
+            </head><body style="font-family: arial, helvetica;">""")
                 deck = self.syncDeck( deck )
                 self.flushWrite('<br><a href="/question#inner_top">return</a>')
                 self.flushWrite("</body></html>")
@@ -933,18 +933,18 @@ the problem magically goes away.
             buffer += (self._bottom)
 
         elif self.path.startswith("/config"):
-	    buffer = self.render_get_config()
-	elif self.path.startswith("/local"):
-	    buffer = self.render_get_local()
-	elif self.path.startswith("/personal"):
-	    buffer = self.render_get_personal()
-	elif self.path.startswith("/download"):
-	    buffer = self.render_get_download(query)
-	elif self.path.startswith("/about"):
-	    buffer = self.render_get_about()
+            buffer = self.render_get_config()
+        elif self.path.startswith("/local"):
+            buffer = self.render_get_local()
+        elif self.path.startswith("/personal"):
+            buffer = self.render_get_personal()
+        elif self.path.startswith("/download"):
+            buffer = self.render_get_download(query)
+        elif self.path.startswith("/about"):
+            buffer = self.render_get_about()
         elif self.path.startswith("/check"):
             buffer = self.render_get_check(deck)
-		
+        
         self.wfile.write(buffer.encode("utf-8") + "\n")
         print "service time", time.time() - serviceStart
 
@@ -970,17 +970,17 @@ the problem magically goes away.
         if not client.prepareSync(0):
             raise Exception("Nothing to do")
 
-	self.flushWrite("""<h1>Syncing deck</h1>
+        self.flushWrite("""<h1>Syncing deck</h1>
         <h2>%s</h2>
-	<em>This could take a while with a big deck ... please be patient!</em>
-	""" % (deck.path,) )
+    <em>This could take a while with a big deck ... please be patient!</em>
+    """ % (deck.path,) )
 
         # hack to get safari to render immediately!
         self.flushWrite("<!--" + " "*1024 + "-->")
 
-	# this can take a long time ... ensure the client doesn't timeout before we finish
-	from threading import Event, Thread
-	ping_event = Event()
+        # this can take a long time ... ensure the client doesn't timeout before we finish
+        from threading import Event, Thread
+        ping_event = Event()
         def ping_client( s = self.wfile, ev=ping_event ):
             while 1:
                 ev.wait(3)
@@ -988,8 +988,8 @@ the problem magically goes away.
                     return
                 s.write(".<!--\n-->")
                 s.flush()
-	ping_thread = Thread(target=ping_client)
-	ping_thread.start()
+        ping_thread = Thread(target=ping_client)
+        ping_thread.start()
 
         # summary
         self.lineWrite("Fetching summary from server..")
@@ -1025,8 +1025,8 @@ the problem magically goes away.
         deck.s.flush()
         deck.s.commit()
 
-	# turn off client ping
-	ping_event.set()
+        # turn off client ping
+        ping_event.set()
         ping_thread.join(5)
 
         return deck
@@ -1080,7 +1080,7 @@ the problem magically goes away.
 def run(server_class=HTTPServer,
         handler_class=Handler):
     global config
-    server_address = ('127.0.0.1', config.get('SERVER_PORT',8000))		# explicit 127.0.0.1 so that delays aren't experienced if wifi/3g networks are not reliable
+    server_address = ('127.0.0.1', config.get('SERVER_PORT',8000))      # explicit 127.0.0.1 so that delays aren't experienced if wifi/3g networks are not reliable
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
