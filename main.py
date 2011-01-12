@@ -14,7 +14,7 @@ from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from anki import DeckStorage as ds
 from anki.sync import SyncClient, HttpSyncServerProxy
-from anki.media import mediaRefs
+from anki.media import mediaFiles
 from anki.utils import parseTags, joinTags
 from anki.facts import Fact
 from anki.hooks import addHook
@@ -395,7 +395,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 if deck:
                     config['DECK_PATH']=deck.path
                     config.saveConfig()
-                    deck.rebuildQueue()
+                    deck.reset()
                 else:
                     errorMsg += "<br /><br /><b>Deck didn't change</b>: " 
                     if os.path.exists(deckpath):
@@ -537,7 +537,6 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             newdeck.s.execute("pragma cache_size = 1000")
             newdeck.modified = 0
             newdeck.s.commit()
-            newdeck.syncName = unicode(name)
             newdeck.lastLoaded = newdeck.modified
 
 	    newdeck = self.syncDeck( newdeck )
@@ -750,7 +749,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 deck = switchDeck(deck, new)
                 config['DECK_PATH']=deck.path
                 config.saveConfig()
-                deck.rebuildQueue()
+                deck.reset()
             except Exception, e:
                 self.errorMsg = str(e)
             if query.get("i"):
@@ -761,7 +760,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         if self.path == "/":
             # refresh
             if deck:
-                deck.rebuildQueue()
+                deck.reset()
             self.flushWrite(self._outer())
         elif deck and self.path.startswith("/save"):
             deck.save()
@@ -776,7 +775,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 else:
                     f.tags = joinTags(parseTags(
                         f.tags) + ["Marked"])
-                f.setModified(textChanged=True)
+                f.setModified(textChanged=True, deck=deck)
                 deck.updateFactTags([f.id])
                 f.setModified()
                 deck.flushMod()
@@ -804,7 +803,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 self.flushWrite('<br><a href="/question#inner_top">return</a>')
                 self.flushWrite("</body></html>")
             except Exception, e:
-                self.errorMsg = str(e)
+                self.errorMsg = `traceback.format_exc()`
                 self.path = "/question#inner_top"
 
 
@@ -928,8 +927,8 @@ the problem magically goes away.
             proxy = HttpSyncServerProxy(config.get('SYNC_USERNAME'), config.get('SYNC_PASSWORD'))
             proxy.connect("ankimini")
         except:
-            raise Exception("Can't sync - check username/password")
-        if not proxy.hasDeck(deck.syncName):
+            raise Exception("Can't sync: " + traceback.format_exc())
+        if not proxy.hasDeck(deck.name()):
             raise Exception("Can't sync, no deck on server")
         if abs(proxy.timestamp - time.time()) > 60:
             raise Exception("Your clock is off by more than 60 seconds.<br>" \
@@ -938,8 +937,9 @@ the problem magically goes away.
         client = SyncClient(deck)
         client.setServer(proxy)
         # need to do anything?
-        proxy.deckName = deck.syncName
-        if not client.prepareSync():
+        proxy.deckName = deck.name()
+        print proxy.deckName
+        if not client.prepareSync(0):
             raise Exception("Nothing to do")
 
 	self.flushWrite("""<h1>Syncing deck</h1>
@@ -981,10 +981,6 @@ the problem magically goes away.
 
         if needFull:
             deck = ds.Deck(deck.path, backup=False)
-            # why is deck.syncName getting lost on a full sync???
-            if deck.syncName is None:
-                deck.syncName = proxy.deckName
-                print "syncName was lost on full sync, restored to", deck.syncName
         else:
             res = client.server.applyPayload(payload)
             # apply reply
@@ -992,7 +988,7 @@ the problem magically goes away.
             client.applyPayloadReply(res)
         # finished. save deck, preserving mod time
         self.lineWrite("Sync complete.")
-        deck.rebuildQueue()
+        deck.reset()
         deck.lastLoaded = deck.modified
         deck.s.flush()
         deck.s.commit()
@@ -1036,17 +1032,12 @@ the problem magically goes away.
                 for f in self.toPlay:
                     subprocess.Popen([config.get('PLAY_COMMAND'), f]).wait()
         toPlay = []
-        for (fullMatch, filename, replacementString) in mediaRefs(string):
-            if fullMatch.startswith("["):
-                if auto and (filename.lower().endswith(".mp3") or
-                             filename.lower().endswith(".wav")):
-                    if deck.mediaDir():
-                        toPlay.append(os.path.join(deck.mediaDir(), filename))
+        for filename in mediaFiles(string):
+            if auto and (filename.lower().endswith(".mp3") or
+                         filename.lower().endswith(".wav")):
+                if deck.mediaDir():
+                    toPlay.append(os.path.join(deck.mediaDir(), filename))
                 string = re.sub(re.escape(fullMatch), "", string)
-            else:
-                string = re.sub(
-                    re.escape(fullMatch), '<img src="%(f)s">' %
-                    {'f': filename}, string)
         if getattr(self, "_disableMedia", None):
             return string
         self.played = toPlay
