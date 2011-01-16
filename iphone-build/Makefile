@@ -1,9 +1,9 @@
 # location of ankimini source dir.  We need libank, main.py and timings.py in this dir.
 # default is ..
 ANKIMINI_SOURCE_DIR=..
-LIBANKI_SOURCE_DIR=../..
+LIBANKI_SOURCE_DIR=..
 
-DEB_VERSION=0.34
+DEB_VERSION=0.36
 UPSTREAM_VERSION=$(shell grep VERSION_ANKIMINI= $(ANKIMINI_SOURCE_DIR)/main.py  | cut -d'"' -f2)
 
 # debian control file package details
@@ -22,11 +22,13 @@ CTL_Homepage=http://ichi2.net/anki
 CTL_Maintainer=Damien Elmes <resolve@ichi2.net>
 
 
-all: AnkiMini AnkiMini-$(DEB_VERSION).deb Packages.bz2
+all: Foo AnkiMini AnkiMini-$(DEB_VERSION).deb Packages.bz2
+
+Foo:
+	rm -rf AnkiMini
 
 AnkiMini:
 	@echo "Copying ankimini v$(UPSTREAM_VERSION)"
-	-mv AnkiMini AnkiMini.old
 	cp -rp directory-template AnkiMini
 	cp -rp $(ANKIMINI_SOURCE_DIR)/main.py $(ANKIMINI_SOURCE_DIR)/timings.py AnkiMini/Applications/AnkiMini.app/
 	# clean .pyc files from libanki
