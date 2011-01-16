@@ -986,6 +986,10 @@ the problem magically goes away.
             # apply reply
             self.lineWrite("Applying reply..")
             client.applyPayloadReply(res)
+            try:
+                client.server.finish()
+            except:
+                deck.s.rollback()
         # finished. save deck, preserving mod time
         self.lineWrite("Sync complete.")
         deck.reset()
