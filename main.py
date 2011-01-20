@@ -1041,7 +1041,7 @@ the problem magically goes away.
                          filename.lower().endswith(".wav")):
                 if deck.mediaDir():
                     toPlay.append(os.path.join(deck.mediaDir(), filename))
-                string = re.sub(re.escape(fullMatch), "", string)
+        string = re.sub("(?i)(\[sound:([^]]+)\])", "", string)
         if getattr(self, "_disableMedia", None):
             return string
         self.played = toPlay
