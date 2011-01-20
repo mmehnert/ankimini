@@ -818,6 +818,8 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                         currentCard and mod == str(int(currentCard.modified))):
                         deck.answerCard(currentCard, int(q))
                     # get new card
+                    if deck.failedCutoff > time.time():
+                        deck.updateCutoff()
                     currentCard = deck.getCard(orm=False)
                     if not currentCard:
                         buffer += (self._top() +
