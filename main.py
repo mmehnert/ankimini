@@ -705,7 +705,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
     def do_GET(self):
         global config
         self.played = False
-        lp = self.path.lower()
+        lp = self.path
         def writeImage():
             try:
                 self.wfile.write(open(os.path.join(deck.mediaDir(), lp[1:])).read())
@@ -718,7 +718,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                             (".tif", "image/tiff"),
                             (".tiff", "image/tiff"),
                             (".png", "image/png")):
-            if lp.endswith(ext):
+            if lp.lower().endswith(ext):
                 self.send_response(200)
                 self.send_header("Content-type", type)
                 self.end_headers()
