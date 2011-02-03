@@ -13,7 +13,6 @@ rm -rf ankimini/libanki/.git
 cp -a /usr/share/pyshared/simplejson ankimini/
 cp -a /usr/share/pyshared/sqlalchemy ankimini/
 
-mkdir ankimini/decks
 
 cp README.windows-mobile.txt ankimini
 
