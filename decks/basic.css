@@ -1,0 +1,27 @@
+.cardq, .carda {
+  font-family:"Arial";
+  font-size:30px;
+  color:#000000;
+  text-align:center;
+  background:#ffffff;
+}
+
+.bigButton
+{ font-size: 24px; width: 445px; height: 130px; padding: 5px; border: 2px solid #7F7F7F; background-color: #E2E2E2; -webkit-border-radius: 40px; background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#cccccc)); }
+.easeButton
+{ font-size: 18px; width: 105px; height: 130px; padding: 5px; border: 2px solid #7F7F7F; background-color: #E2E2E2; -webkit-border-radius: 40px; background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#cccccc)); }
+.easeButtonB
+{ font-size: 18px; width: 170px; height: 180px; padding: 5px; border: 2px solid #7F7F7F; background-color: #E2E2E2; -webkit-border-radius: 40px; background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#cccccc)); }
+.medButton
+{ font-size: 18px; width: 100px; height: 40px; padding: 5px;}
+.medButtonRed
+{ font-size: 18px; width: 100px; height: 40px; padding: 5px; color: #FF0000; }
+.q
+{ font-size: 18px; }
+.a
+{ font-size: 18px; }
+.qa-area
+{ min-height: 240px; }
+body { margin-top: 0px; margin-left: 15px; padding: 0px; font-family: arial, helvetica; }
+
+h1{font-size: 18px; }

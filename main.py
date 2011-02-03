@@ -214,6 +214,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 self.local_css = f.read()
                 f.close()
             except:
+                print "No cssFile "+cssFile
                 self.local_css = ""
         use_local_css = config.get('USE_LOCAL_CSS', False)
         if use_local_css:
