@@ -1,2 +1,4 @@
 #!/bin/sh
-perl -n -e 'if (/version = "([^"]+)"/){print "$1\n";}' ankimini/libanki/anki/__init__.py
+#perl -n -e 'if (/version = "([^"]+)"/){print "$1\n";}' ankimini/libanki/anki/__init__.py
+cd ankimini/libanki
+git describe --tags

@@ -1,3 +1,5 @@
 #!/bin/sh
-perl -n -e 'if (/DEB_VERSION=([^"]+)$/){print "$1";}' ankimini/iphone-build/Makefile
+#perl -n -e 'if (/DEB_VERSION=([^"]+)$/){print "$1";}' ankimini/iphone-build/Makefile
+cd ankimini
+git describe --tags
 
