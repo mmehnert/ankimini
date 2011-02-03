@@ -1,2 +1,2 @@
 #!/bin/sh
-scp `ls *.zip |sort|tail -n 1`  mmehnert,ankimini@frs.sourceforge.net:/home/frs/project/a/an/ankimini/
+scp `ls *.zip -t  |head -n 1`  mmehnert,ankimini@frs.sourceforge.net:/home/frs/project/a/an/ankimini/
