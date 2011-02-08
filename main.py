@@ -10,6 +10,7 @@ A mini anki webserver
 __docformat__ = 'restructuredtext'
 
 import time, cgi, sys, os, re, subprocess, threading, traceback
+import urllib
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from anki import DeckStorage as ds
@@ -707,8 +708,9 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         self.played = False
         lp = self.path
         def writeImage():
+            img = urllib.unquote(lp[1:])
             try:
-                self.wfile.write(open(os.path.join(deck.mediaDir(), lp[1:])).read())
+                self.wfile.write(open(os.path.join(deck.mediaDir(), img)).read())
             except:
                 pass
         for (ext, type) in ((".jpg", "image/jpeg"),
