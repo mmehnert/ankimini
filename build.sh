@@ -17,6 +17,6 @@ mkdir ankimini/decks
 
 cp README.windows-mobile.txt ankimini
 
--find ankimini -iname "*.pyc"|xargs rm -v
+find ankimini -iname "*.pyc"|xargs rm -v
 
 zip -9 -x \*.gitignore -r `date "+%F"`-ankimini-$PROG_VERSION-windows-mobile-libanki-$LIB_VERSION.zip ankimini	
