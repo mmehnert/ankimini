@@ -1,5 +1,12 @@
-SERVER_PORT = 8000
-DECK_PATH = os.path.join(os.path.dirname(sys.argv[0]), "tango.anki")
-SYNC_USERNAME = "test"
-SYNC_PASSWORD = "test"
-PLAY_COMMAND = "play"
+# auto generated, manual changes may be overwritten
+USE_LOCAL_CSS=False
+LOCAL_CSS_FILE='basic.css'
+SYNC_PASSWORD='test'
+DEBUG_NETWORK=False
+PLAY_COMMAND='play'
+DECK_PATH=''
+SERVER_PORT=8000
+DISPLAY_DIVIDER=True
+SYNC_USERNAME='test'
+RENDER_LATEX=False
+DISPLAY_INTERVAL=True

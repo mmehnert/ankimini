@@ -17,9 +17,8 @@ import urllib
 import time, cgi, sys, os, re, threading, traceback
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-from anki import DeckStorage as ds
+from anki import Deck
 from anki.sync import SyncClient, HttpSyncServerProxy
-from anki.media import mediaFiles
 from anki.utils import parseTags, joinTags
 from anki.facts import Fact
 from anki.hooks import addHook
@@ -105,8 +104,8 @@ def expandName( raw, ext, base_dir=ANKIMINI_PATH+os.sep+"decks" ):
     return canonical
 # expandName()
 
-def openDeck(deckPath=None):
-    global config
+def openDeck(deckPath=None, lock=True):
+    global config, lastModified
     try:
         if deckPath is None:
             deckPath = config['DECK_PATH']
@@ -114,10 +113,13 @@ def openDeck(deckPath=None):
         print "open deck.. " + deckPath
         if not os.path.exists(deckPath):
             raise ValueError("Couldn't find deck %s" % (deckPath,) )
-        deck = ds.Deck(deckPath, backup=False,  build=False)
-        deck.s.execute("pragma cache_size = 1000")
+        deck = Deck(deckPath, queue=False,  build=False, lock=lock)
+        deck.sched.reset()
+        deck.db.execute("pragma cache_size = 1000")
+        lastModified=deck._lastSave
     except Exception, e:
         print "Error loading deck"
+        traceback.print_exc()
         print e
         deck = None
     return deck
@@ -189,22 +191,24 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 </body></html>"""
 
     def _top(self):
-        global config
-        if deck and deck.modifiedSinceSave():
+        global config, lastModified
+        if deck and lastModified > deck._lastSave:
             saveClass="medButtonRed"
         else:
             saveClass="medButton"
-        if deck and currentCard and deck.s.scalar(
+        if deck and currentCard and deck.db.scalar(
             "select 1 from facts where id = :id and tags like '%marked%'",
-            id=currentCard.factId):
+            id=currentCard.fid):
             markClass = "medButtonRed"
         else:
             markClass = "medButton"
         if self.errorMsg:
             self.errorMsg = '<p style="color: red">' + self.errorMsg + "</p>"
+        
+        stats=None
         if deck:
             stats = self.getStats()
-        else:
+        if not stats:       
             stats = ("","")
 
         css =""
@@ -220,13 +224,13 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
         if use_local_css:
             css = self.local_css
         elif deck:
-            css = deck.css
-        if currentCard and deck and not use_local_css:
-            background = deck.s.scalar(
-                "select lastFontColour from cardModels where id = :id",
-                id=currentCard.cardModelId)
-        else:
-            background = "#ffffff"
+            css = deck.allCSS()
+#        if currentCard and deck and not use_local_css:
+#            background = deck.db.scalar(
+#                "select lastFontColour from cardModels where id = :id",
+#                id=currentCard.cardModelId)
+#        else:
+        background = "#ffffff"
         return """
 <html>
 <head>
@@ -248,7 +252,33 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 .qa-area
 { min-height: 240px; }
     body { margin-top: 0px; margin-left: 15px; padding: 0px; font-family: arial, helvetica; }
+.ansbut {
+#    width: 100px;
+#    height: 160px;
+    -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    background-color: #ddd;
+    border-radius: 2px;
+    border: 1px solid #aaa;
+    color: #000;
+    display: inline-block;
+    font-size: 24px;
+    margin: 0 2 0 2;
+    padding: 6;
+    text-decoration: none;
+    text-align: center;
+}
+
+.easebut {
+  width: 160px;
+  height: 160px;
+  font-size: 100%%;
+}
+
 %s
+
 </style>
 </head>
 <body id="inner_top">
@@ -260,17 +290,26 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 <input class="%s" type="submit" class="button" value="Save">
 </form></td>
 <td align=left>
+<!--
 <form action="/mark" method="get">
 <input class="%s" type="submit" class="button" value="Mark">
-</form></td>
+</form>
+-->
+</td>
 <td align=right>
+<!--
 <form action="/replay" method="get">
 <input class="medButton" type="submit" class="button" value="Replay">
-</form></td>
+</form>
+-->
+</td>
 <td align=right>
+<!--
 <form action="/sync" method="get">
 <input class="medButton" type="submit" class="button" value="Sync">
-</form></td>
+</form>
+-->
+</td>
 <td align=right>
 </tr></table>
 %s
@@ -290,9 +329,12 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
 <input class="medButton" type="submit" class="button" value="Local">
 </form></td>
 <td align=right>
+<!--
 <form action="/personal" method="get">
 <input class="medButton" type="submit" class="button" value="Online">
-</form></td>
+</form>
+-->
+</td>
 <td align=right>
 <form action="/about" method="get">
 <input class="medButton" type="submit" class="button" value="About">
@@ -464,8 +506,13 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                     if deck is not None and deck.name() == name:
                         tmpdeck=deck
                     else:
-                        tmpdeck=openDeck(name)
-                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%sdue, %snew</td></tr>' % ( name, name, human_readable_size(bytes),  tmpdeck.failedSoonCount + tmpdeck.revCount, tmpdeck.newCountToday )
+                        deckPath = config['DECK_PATH']
+                        deckPath = expandName(name, '.anki')
+                        tmpdeck=openDeck(deckPath, lock=False)
+                    if not tmpdeck:
+                        continue
+                    counts=tmpdeck.sched.selCounts()
+                    buffer += '<tr><td><a href="/switch?d=%s&i=y">%s</a></td><td>%s</td><td>%sdue, %snew</td></tr>' % ( name, name, human_readable_size(bytes),  counts[1]+counts[2], counts[0] )
                     if deck != tmpdeck:
                         tmpdeck.close()
                 buffer += "</table>"
@@ -547,10 +594,10 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             tmp_dir = unicode(tempfile.mkdtemp(dir=ANKIMINI_PATH, prefix="anki"), sys.getfilesystemencoding())
             tmp_deck = expandName(name, '.anki', tmp_dir)
 
-            newdeck = ds.Deck(tmp_deck)
-            newdeck.s.execute("pragma cache_size = 1000")
-            newdeck.modified = 0
-            newdeck.s.commit()
+            newdeck = Deck(tmp_deck, build=False, queue=False)
+            newdeck.db.execute("pragma cache_size = 1000")
+            newdeck.mod = 0
+            newdeck.db.commit()
             newdeck.lastLoaded = newdeck.modified
 
             newdeck = self.syncDeck( newdeck )
@@ -717,7 +764,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
     #end do_POST()
 
     def do_GET(self):
-        global config
+        global config, lastModified
         self.played = False
         lp = self.path
         def writeImage():
@@ -787,7 +834,7 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
             self.path = "/question#inner_top"
         elif deck and self.path.startswith("/mark"):
             if currentCard:
-                f = deck.s.query(Fact).get(currentCard.factId)
+                f = deck.db.query(Fact).get(currentCard.fid)
                 if "marked" in f.tags.lower():
                     t = parseTags(f.tags)
                     t.remove("Marked")
@@ -799,8 +846,8 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 deck.updateFactTags([f.id])
                 f.setModified()
                 deck.flushMod()
-                deck.s.flush()
-                deck.s.expunge(f)
+                deck.db.flush()
+                deck.db.expunge(f)
                 history.pop()
             self.path = "/question#inner_top"
         elif deck and self.path.startswith("/replay"):
@@ -835,15 +882,20 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                 try: # most deck errors manifest in answering cards
                     # possibly answer old card
                     if (q is not None and
-                        currentCard and mod == str(int(currentCard.modified))):
-                        deck.answerCard(currentCard, int(q))
+                        currentCard and mod == str(int(currentCard.mod))):
+                        print "answer card"
+                        deck.sched.answerCard(currentCard, int(q))
+                        currentCard = deck.sched.getCard()
+                        lastModified=time.time()
                     # get new card
-                    if deck.failedCutoff > time.time():
-                        deck.updateCutoff()
-                    currentCard = deck.getCard(orm=False)
+                    #if deck.failedCutoff > time.time():
+                    #    deck.updateCutoff()
+                    elif not currentCard:
+                        print "getCard question 1"
+                        currentCard = deck.sched.getCard()
                     if not currentCard:
                         buffer += (self._top() +
-                                   deck.deckFinishedMsg() +
+                                   deck.sched.finishedMsg() +
                                    self._bottom)
                     else:
                         curdir=os.getcwd() 
@@ -851,24 +903,25 @@ window.scrollTo(0, 1); // pan to the bottom, hides the location bar
                             os.chdir(deck.mediaDir()) 
                         except BaseException,  e:
                             pass
-                        deck.updateCardQACacheFromIds([currentCard.id],  build=config["RENDER_LATEX"])
+                        #deck.updateCardQACacheFromIds([currentCard.id],  build=config["RENDER_LATEX"])
                         os.chdir(curdir)
-                        currentCard = deck.getCard(orm=False)
+                        #print "getCard question 2"
+                        #currentCard = deck.sched.getCard()
                         buffer += (self._top() + ("""
 <br>
 <div class="qa-area">
 <div class="q" %(divider)s>%(question)s<br /></div>
 </div>
-<br></div><br><form action="/answer" method="get" style="margin: 0px; padding: 0px;">
+<br></div><br><form action="/answer" method="get" name=answer style="margin: 0px; padding: 0px;">
 <table width="100%%">
 <tr>
-<td align=center><button class="bigButton" type="submit" class="button" value="Answer">Answer</button></td>
+<td align=center><a class="ansbut" onclick="document.answer.submit();"  value="Answer">Answer</a></td>
 </tr>
 </table>
 </form>
 """ % {
         "divider": 'style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #7F7F7F;"' if config.get('DISPLAY_DIVIDER', False) else '',
-        "question": self.prepareMedia(currentCard.htmlQuestion(align=False)),
+        "question": currentCard.q(),
         }))
                         buffer += (self._bottom)
                 except Exception, e:
@@ -887,7 +940,8 @@ the problem magically goes away.
                     buffer += (self._bottom)
         elif self.path.startswith("/answer"):
             if not currentCard:
-                currentCard = deck.getCard(orm=False)
+                print "getCard answer"
+                currentCard = deck.sched.getCard()
             c = currentCard
             buffer += (self._top() + """
 <br>
@@ -895,45 +949,21 @@ the problem magically goes away.
 <div class="q" %(divider)s>%(question)s<br /></div>
 <div class="a">%(divider_two)s%(answer)s</div>
 </div>
-<br></div><br><form name="gradeform" action="/question" method="get" style="margin: 0px; padding: 0px;">
+<br></div><br><center><form name="gradeform" action="/question" method="get" style="margin: 0px; padding: 0px;">
 <input type="hidden" name="mod" value="%(mod)d">
 <input type="hidden" name="q" value="">
-<table width="100%%">
-<tr>
 """ % {
     "divider": 'style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: #7F7F7F;"' if config.get('DISPLAY_DIVIDER', False) else '',
     "divider_two": '<br />' if config.get('DISPLAY_DIVIDER', False) else '',
-    "question": self.prepareMedia(c.htmlQuestion(align=False), auto=False),
-    "answer": self.prepareMedia(c.htmlAnswer(align=False)),
-    "mod": c.modified,
+    "question": c.q(),
+    "answer": c.a(),
+    "mod": c.mod,
     })
             display_interval = config.get('DISPLAY_INTERVAL', False)
-            if display_interval:
-                ints = {}
-                for i in range(1, 5):
-                    ints[str(i)] = deck.nextIntervalStr(c, i, True)
-                buffer += ("""
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=1; document.gradeform.submit();">Soon</button></td>
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=2; document.gradeform.submit();">%(2)s</button><br></td>
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=3; document.gradeform.submit();">%(3)s</button></td>
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=4; document.gradeform.submit();">%(4)s</button></td>
-    """ % ints)
-            else:
-                buffer += ("""
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=1; document.gradeform.submit();">Again</button></td>
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=2; document.gradeform.submit();">Hard</button><br></td>
-    <td align=center><button class="easeButton" type="button" class="button" 
-    onclick="document.gradeform.q.value=3; document.gradeform.submit();">Good</button></td>
-    <td align=center><button class="easeButton" type="button" class="button"
-    onclick="document.gradeform.q.value=4; document.gradeform.submit();">Easy</button></td>
-    """)
-            buffer += ("</tr></table></form>")
+
+            buffer+=self._answerButtons()
+            
+            buffer += ("</form></center>")
             buffer += (self._bottom)
 
         elif self.path.startswith("/config"):
@@ -953,6 +983,48 @@ the problem magically goes away.
         print "service time", time.time() - serviceStart
 
 ########################
+    def _defaultEase(self):
+        if deck.sched.answerButtons(currentCard) == 4:
+            return 3
+        else:
+            return 2
+
+    def _answerButtons(self):
+        if deck.sched.answerButtons(currentCard) == 4:
+            labels = ("Again", "Hard", "Good", "Easy")
+        else:
+            labels = ("Again", "Good", "Easy")
+        times = []
+        buttons = []
+        default = self._defaultEase()
+        def but(label, i):
+            if i == default:
+                extra=" id=defease"
+            else:
+                extra = ""
+            return '''
+<a class="ansbut"  
+    onclick="document.gradeform.q.value=%d; document.gradeform.submit();">%s</a>
+''' % (i, label)
+        for i in range(0, len(labels)):
+            l = labels[i]
+            l += "<br><small>%s</small>" % self._buttonTime(i, default-1)
+            buttons.append(but(l, i+1))
+        buf = ("<table><tr><td>" +
+               "</td><td>".join(buttons) + "</td></tr></table>")
+        return "<center>" + buf + "</center>"
+        return buf
+
+    def _buttonTime(self, i, green):
+        #if self.mw.config['suppressEstimates']:
+        #    return ""
+        txt = deck.sched.nextIvlStr(currentCard, i+1, True)
+        if i == 0:
+            txt = '<span style="color: #700">%s</span>' % txt
+        elif i == green:
+            txt = '<span style="color: #070">%s</span>' % txt
+        return txt
+
 
     def syncDeck(self, deck):
         try:
@@ -1012,7 +1084,7 @@ the problem magically goes away.
             self.lineWrite("Sending payload...")
 
         if needFull:
-            deck = ds.Deck(deck.path, backup=False)
+            deck = Deck(deck.path, queue=False, build=False)
         else:
             res = client.server.applyPayload(payload)
             # apply reply
@@ -1021,13 +1093,13 @@ the problem magically goes away.
             try:
                 client.server.finish()
             except:
-                deck.s.rollback()
+                deck.db.rollback()
         # finished. save deck, preserving mod time
         self.lineWrite("Sync complete.")
         deck.reset()
         deck.lastLoaded = deck.modified
-        deck.s.flush()
-        deck.s.commit()
+        deck.db.flush()
+        deck.db.commit()
 
         # turn off client ping
         ping_event.set()
@@ -1036,29 +1108,33 @@ the problem magically goes away.
         return deck
 
     def getStats(self):
-        s = deck.getStats(short=True)
-        stats = (("T: %(dYesTotal)d/%(dTotal)d "
-                 "(%(dYesTotal%)3.1f%%) "
-                 "A: <b>%(gMatureYes%)3.1f%%</b>. ETA: <b>%(timeLeft)s</b>") % s)
+        global deck, currentCard
+        if not currentCard:
+            return None
+        deck.sched.eta()
+
+        counts = list(deck.sched.counts())
+        idx = deck.sched.countIdx(currentCard)
+        counts[idx] = "<u>%s</u>" % (counts[idx]+1) 
+        space = "&nbsp;" * 2
+        ctxt = '<font color="#000099">%s</font>' % counts[0]
+        ctxt += space + '<font color="#990000">%s</font>' % counts[1]
+        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
+        stats = ("Remaining: %s") % ctxt
+
+
         f = "<font color=#990000>%(failed)d</font>"
         r = "<font color=#000000>%(rev)d</font>"
         n = "<font color=#0000ff>%(new)d</font>"
-        if currentCard:
-            if currentCard.reps:
-                if currentCard.successive:
-                    r = "<u>" + r + "</u>"
-                else:
-                    f = "<u>" + f + "</u>"
-            else:
-                n = "<u>" + n + "</u>"
-        stats2 = ("<font size=+2>%s+%s+%s</font>" % (f,r,n)) % s
-        return (stats, stats2)
+
+        return (stats, stats)
 
     def disableMedia(self):
         "Stop processing media for the rest of the request."
         self._disableMedia = True
 
     def prepareMedia(self, string, auto=True):
+        global deck
         class AudioThread(threading.Thread):
             def __init__(self, *args, **kwargs):
                 self.toPlay = kwargs['toPlay']
@@ -1068,11 +1144,11 @@ the problem magically goes away.
                 for f in self.toPlay:
                     os.system([config.get('PLAY_COMMAND')+" "+ f])
         toPlay = []
-        for filename in mediaFiles(string):
+        for filename in deck.media.mediaFiles(string):
             if auto and (filename.lower().endswith(".mp3") or
                          filename.lower().endswith(".wav")):
                 if deck.mediaDir():
-                    toPlay.append(os.path.join(deck.mediaDir(), filename))
+                    toPlay.append(os.path.join(deck.media.dir(), filename))
         string = re.sub("(?i)(\[sound:([^]]+)\])", "", string)
         if getattr(self, "_disableMedia", None):
             return string
